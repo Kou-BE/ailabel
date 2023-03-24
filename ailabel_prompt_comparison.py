@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import os
 from PIL import Image
 import requests
 from io import BytesIO
@@ -35,7 +34,7 @@ def new_results(title_idx, winner, loser):
 @st.cache
 def load_data(filename):
 
-    data = pd.read_excel(os.path.join('input', filename), usecols=['title','title_0a','title_0b','title_1a','title_1b','title_2a','title_2b'])
+    data = pd.read_excel('./input/' + filename, usecols=['title','title_0a','title_0b','title_1a','title_1b','title_2a','title_2b'])
     data.columns = ['title', 'v0', 'v1', 'v2', 'v3', 'v4', 'v5']
     
     return data
