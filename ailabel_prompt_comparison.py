@@ -4,6 +4,7 @@ import numpy as np
 from PIL import Image
 import requests
 from io import BytesIO
+from datetime import datetime
 
 # Get random pair
 @st.cache
@@ -38,6 +39,25 @@ def load_data(filename):
     data.columns = ['title', 'v0', 'v1', 'v2', 'v3', 'v4', 'v5']
     
     return data
+
+def push_results_to_repo():
+    
+    # Create filename with datetime and random set of numbers
+    now = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    rand_num = str(np.random.randint(1000, 9999))
+    filename = f'{now}_{rand_num}.csv'
+    filepath = './output/' + filename
+    
+    # Save results DataFrame to CSV file
+    results = st.session_state["results"]
+    results.to_csv(filepath, index=False)
+    
+    ## Stage and commit changes to the repository
+    #repo.index.add([filepath])
+    #repo.index.commit(f'Add results file {filename}')
+    #
+    ## Push changes to the remote repository
+    #repo.remotes.origin.push()
 
 
 ################################################################################################################################
@@ -100,3 +120,11 @@ if len(st.session_state["results"]) > 0:
     st.write("No comparisons made: " + str(st.session_state["nb_comparison"]))
 else:
     st.write("No comparisons have been made yet.")
+    
+# Button to save results
+if st.button('Push results'):
+    if len(st.session_state["results"]) > 0:
+        push_results_to_repo()
+        st.success('Thanks!')
+    else:
+        st.write("No comparisons have been made yet.")
