@@ -10,8 +10,9 @@ import time
 
 
 # Get random pair
-def get_random_pair(data):
-    title_idx = np.random.choice(data.index.unique())
+@st.cache
+def get_random_pair(data, i):
+    title_idx = np.random.randint(0,99)
     title_row = data.iloc[title_idx]
     images = title_row['images']
 
@@ -26,13 +27,10 @@ def get_random_pair(data):
 def new_results(title_idx, winner, loser):
 
     # Add the new result
-    new_result = pd.DataFrame({
-        'title_idx': [title_idx],
-        'winner_version': [winner],
-        'loser_version': [loser],
-    })
+    new_result = [title_idx, winner, loser]
 
     return new_result
+
 
 @st.cache
 def load_data(filename):
@@ -44,20 +42,22 @@ def load_data(filename):
         
     return data
 
+
 def clean_img_url(x_str):
     if x_str == '[]':
-        return np.nan
+        return ""
     else:
         x_list = x_str.split(', ')
         x_list = [x.strip("'").strip('[').strip(']').strip("'") for x in x_list]
         x_list += [""]*5
         return x_list[:6]
 
+
 def display_product_images():
-    if not images:
+    if len(images)==0:
         st.write('No image available')
     else:
-        cols = st.columns(6)
+        cols = st.columns(3)
         for col, img_url in zip(cols, images):
             try:
                 response = requests.get(img_url)
@@ -66,6 +66,7 @@ def display_product_images():
             except:
                 pass
 
+
 def get_img(url):
     try:
         response = requests.get(url)
@@ -73,7 +74,8 @@ def get_img(url):
         st.image(img)
     except:
         pass
-    
+
+
 def push_to_github(filename, filecontent):
     
     # Get the GitHub token from the Streamlit secrets
@@ -92,9 +94,10 @@ def push_to_github(filename, filecontent):
     
     time.sleep(3)
 
+
 def push_results_to_repo():    
     # Get the results dataframe from session state
-    results_df = pd.concat(st.session_state["results"])
+    results_df = pd.DataFrame(st.session_state['results'], columns=['title_idx', 'winner', 'loser'])
     
     # Convert the dataframe to CSV string
     csv_str = results_df.to_csv(index=False)
@@ -113,24 +116,32 @@ def push_results_to_repo():
     # Show a success message
     st.success("Results pushed successfully!")     
 
+
+@st.cache(suppress_st_warning=True)
+def display_main_header():
+    response = requests.get('https://www.bearingpointcaribbean.com/wp-content/uploads/2021/02/BrP_Logo_RGBW_NG.png')
+    img = Image.open(BytesIO(response.content))
+    st.image(img, width=200)
+    st.title("AILABEL: GPT Title Benchmark")
+    st.subheader('Select the best product title between A & B for an e-commerce website.')
+
 ################################################################################################################################
 # STREAMLIT
 ################################################################################################################################
 
+
 # Load data data
 data = load_data('prompt_benchmark.xlsx')
+
 
 # Load the next pair of versions to compare
 if "nb_comparison" not in st.session_state:
     st.session_state["nb_comparison"] = 0
-title_idx, v1_idx, v1, v2_idx, v2, images = get_random_pair(data)
+title_idx, v1_idx, v1, v2_idx, v2, images = get_random_pair(data, st.session_state['nb_comparison'])
+
 
 # Header
-response = requests.get('https://www.bearingpointcaribbean.com/wp-content/uploads/2021/02/BrP_Logo_RGBW_NG.png')
-img = Image.open(BytesIO(response.content))
-st.image(img, width=200)
-st.title("AILABEL: GPT Title Benchmark")
-st.subheader('Select the best product title between A & B for an e-commerce website.')
+display_main_header()
 st.subheader(f'Product Number {title_idx}')
 display_product_images()
 st.markdown("""---""")
@@ -139,12 +150,14 @@ st.markdown("""---""")
 st.write("Version B: " + v2)
 st.markdown("""---""")
 
+
 # Buttons to select the best version
 col1, col2 = st.columns(2)
 with col1:
     selected_v1 = st.button(f"Select Version A")
 with col2:
     selected_v2 = st.button(f"Select Version B")
+
 
 # Comparison save
 if "results" not in st.session_state:    
@@ -164,16 +177,19 @@ if selected_v1 or selected_v2:
 
     st.session_state["nb_comparison"] += 1
 
-    title_idx, v1_idx, v1, v2_idx, v2, images = get_random_pair(data)
+    title_idx, v1_idx, v1, v2_idx, v2, images = get_random_pair(data, st.session_state['nb_comparison'])
 
     st.experimental_rerun()
 
+
 # Show the results of all comparisons so far
 if len(st.session_state["results"]) > 0:
-    st.write("No comparisons made: " + str(st.session_state["nb_comparison"]))
+    st.write("No comparisons not pushed yet: " + str(len(st.session_state['results'])))
+    st.dataframe(pd.DataFrame(st.session_state['results'], columns=['title_idx', 'winner', 'loser']))
 else:
     st.write("No comparisons have been made yet.")
-    
+
+
 # Button to save results
 if st.button('Push results'):
     if len(st.session_state["results"]) > 0:
