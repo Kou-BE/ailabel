@@ -55,32 +55,25 @@ def clean_img_url(x_str):
         return x_list[:6]
 
 def display_product_images():
-
-    if len(images)==0:
+    if not images:
         st.write('No image available')
-
     else:
-        col0, col1, col2, col3, col4, col5 = st.columns(6)
-        with col0:
-            get_img(images[0])
-        with col1:
-            get_img(images[1])
-        with col2:
-            get_img(images[2])
-        with col3:
-            get_img(images[3])
-        with col4:
-            get_img(images[4])
-        with col5:
-            get_img(images[5])
+        cols = st.columns(6)
+        for col, img_url in zip(cols, images):
+            try:
+                response = requests.get(img_url)
+                img = Image.open(BytesIO(response.content))
+                col.image(img)
+            except:
+                pass
 
 def get_img(url):
-    if len(url)==0:
-        a = 0
-    else:
+    try:
         response = requests.get(url)
         img = Image.open(BytesIO(response.content))
         st.image(img)
+    except:
+        pass
     
 def push_to_github(filename, filecontent):
     
@@ -93,7 +86,7 @@ def push_to_github(filename, filecontent):
     g = Github(token)
 
     # Get the repository object
-    repo = g.get_repo(_repo+"/"+_branch)
+    repo = g.get_repo(f'{_repo}/{_branch}')
 
     # Create a new Git commit with the file
     repo.create_file(filename, "Add new file", filecontent)
@@ -119,7 +112,7 @@ def push_results_to_repo():
     push_to_github('./output/'+filename, csv_bytes.getvalue())
     
     # Show a success message
-    st.success("File pushed to GitHub successfully.")     
+    st.success("Results pushed successfully!")     
 
 ################################################################################################################################
 # STREAMLIT
@@ -186,6 +179,7 @@ else:
 if st.button('Push results'):
     if len(st.session_state["results"]) > 0:
         push_results_to_repo()
+        st.session_state["results"] = []
     else:
         st.write("Please make at least one comparison before pushing -_-'")
         bruh = requests.get('http://i.imgur.com/2CkPjd2.png')
