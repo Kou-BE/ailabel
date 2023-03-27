@@ -80,33 +80,6 @@ def get_img(url):
         response = requests.get(url)
         img = Image.open(BytesIO(response.content))
         st.image(img)
-
-# Define the form fields
-with st.form(key="csv_upload"):
-    submit_button = st.form_submit_button(label="Push results")
-
-# When the user clicks the submit button, push the file to GitHub
-if submit_button:
-    # Get the results dataframe from session state
-    results_df = st.session_state["results"]
-    
-    # Convert the dataframe to CSV string
-    csv_str = results_df.to_csv(index=False)
-    
-    # Convert CSV string to bytes
-    csv_bytes = io.BytesIO(csv_str.encode())
-    
-    # Create filename with datetime and random set of numbers
-    now = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-    rand_num = str(np.random.randint(1000, 9999))
-    filename = f'{now}_{rand_num}.csv'
-    
-    # Push the file to GitHub
-    push_to_github(filename, csv_bytes.getvalue())
-    
-    # Show a success message
-    st.success("File pushed to GitHub successfully.")
-
     
 def push_to_github(filename, filecontent):
     
@@ -125,6 +98,27 @@ def push_to_github(filename, filecontent):
     repo.create_file(filename, "Add new file", filecontent)
     
     time.sleep(3)
+
+def push_results_to_repo():    
+    # Get the results dataframe from session state
+    results_df = st.session_state["results"]
+    
+    # Convert the dataframe to CSV string
+    csv_str = results_df.to_csv(index=False)
+    
+    # Convert CSV string to bytes
+    csv_bytes = io.BytesIO(csv_str.encode())
+    
+    # Create filename with datetime and random set of numbers
+    now = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    rand_num = str(np.random.randint(1000, 9999))
+    filename = f'{now}_{rand_num}.csv'
+    
+    # Push the file to GitHub
+    push_to_github(filename, csv_bytes.getvalue())
+    
+    # Show a success message
+    st.success("File pushed to GitHub successfully.")     
 
 ################################################################################################################################
 # STREAMLIT
@@ -191,7 +185,6 @@ else:
 if st.button('Push results'):
     if len(st.session_state["results"]) > 0:
         push_results_to_repo()
-        st.success('Thanks!')
     else:
         st.write("Please make at least one comparison before pushing -_-'")
         bruh = requests.get('http://i.imgur.com/2CkPjd2.png')
