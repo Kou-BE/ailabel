@@ -116,7 +116,7 @@ def push_results_to_repo():
     filename = f'{now}_{rand_num}.csv'
     
     # Push the file to GitHub
-    push_to_github(./output/'+filename, csv_bytes.getvalue())
+    push_to_github('./output/'+filename, csv_bytes.getvalue())
     
     # Show a success message
     st.success("File pushed to GitHub successfully.")     
