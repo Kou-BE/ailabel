@@ -10,8 +10,7 @@ import time
 
 
 # Get random pair
-@st.cache
-def get_random_pair(data, i):
+def get_random_pair(data):
     title_idx = np.random.choice(data.index.unique())
     title_row = data.iloc[title_idx]
     images = title_row['images']
@@ -124,7 +123,7 @@ data = load_data('prompt_benchmark.xlsx')
 # Load the next pair of versions to compare
 if "nb_comparison" not in st.session_state:
     st.session_state["nb_comparison"] = 0
-title_idx, v1_idx, v1, v2_idx, v2, images = get_random_pair(data, st.session_state["nb_comparison"])
+title_idx, v1_idx, v1, v2_idx, v2, images = get_random_pair(data)
 
 # Header
 response = requests.get('https://www.bearingpointcaribbean.com/wp-content/uploads/2021/02/BrP_Logo_RGBW_NG.png')
@@ -165,7 +164,7 @@ if selected_v1 or selected_v2:
 
     st.session_state["nb_comparison"] += 1
 
-    title_idx, v1_idx, v1, v2_idx, v2, images = get_random_pair(data, st.session_state["nb_comparison"])
+    title_idx, v1_idx, v1, v2_idx, v2, images = get_random_pair(data)
 
     st.experimental_rerun()
 
