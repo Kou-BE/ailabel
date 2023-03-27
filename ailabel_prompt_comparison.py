@@ -40,9 +40,7 @@ def load_data(filename):
     data.columns = ['v0', 'v1', 'v2', 'v3', 'v4', 'v5', 'images']
 
     data['images'] = data['images'].map(lambda x: clean_img_url(x))
-    
-    st.write(st.secrets["repository"])
-    
+        
     return data
 
 def clean_img_url(x_str):
