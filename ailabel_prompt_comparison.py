@@ -90,7 +90,11 @@ def push_results_to_repo():
     
     # Save results DataFrame to CSV file
     results = st.session_state["results"]
-    results_git = results.to_csv(filepath, index=False)
+    results.to_csv(filepath, index=False)
+    
+    # Read CSV contents from file
+    with open(filepath, 'r') as f:
+        file_list = f.read()
     
     # Repo info
     repo = st.secrets["repository"]
@@ -98,7 +102,7 @@ def push_results_to_repo():
     token = st.secrets["token"]
     
     # Push
-    updategitfiles(filepath,results_git,repo,branch,token)
+    updategitfiles(filepath, file_list, repo, branch, token)
 
 
 def updategitfiles(filepath,file_list,Repo,branch,token):
