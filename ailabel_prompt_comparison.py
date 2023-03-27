@@ -11,14 +11,14 @@ from datetime import datetime
 def get_random_pair(data, i):
     title_idx = np.random.choice(data.index.unique())
     title_row = data.iloc[title_idx]
-    title = title_row['title']
+    images = title_row['image']
 
     version_indices = list(range(6))
     np.random.shuffle(version_indices)
     v1_idx, v2_idx = version_indices[:2]
     v1, v2 = title_row[f'v{v1_idx}'], title_row[f'v{v2_idx}']
 
-    return title, title_idx, v1_idx, v1, v2_idx, v2
+    return title_idx, v1_idx, v1, v2_idx, v2, images
 
 
 def new_results(title_idx, winner, loser):
@@ -35,10 +35,63 @@ def new_results(title_idx, winner, loser):
 @st.cache
 def load_data(filename):
 
-    data = pd.read_excel('./input/' + filename, usecols=['title','title_0a','title_0b','title_1a','title_1b','title_2a','title_2b'])
-    data.columns = ['title', 'v0', 'v1', 'v2', 'v3', 'v4', 'v5']
+    data = pd.read_excel('./input/' + filename, usecols=['title','title_0a','title_0b','title_1a','title_1b','title_2b','image'])
+    data.columns = ['v0', 'v1', 'v2', 'v3', 'v4', 'v5', 'image']
+
+    data['image'] = data['image'].map(lambda x: clean_img_url(x))
     
     return data
+
+def clean_img_url(x_str):
+    if x_str == '[]':
+        return np.nan
+    else:
+        x_list = x_str.split(', ')
+        x_list = [x.strip("'").strip('[').strip(']').strip("'") for x in x_list]
+        return x_list
+
+def display_product_images():
+
+    if len(images)==0:
+        st.write('No image available')
+    else:
+
+        col0, col1, col2, col3, col4, col5 = st.columns(6)
+        with col0:
+            try:
+                get_img(images[0])
+            except:
+                a=0
+        with col1:
+            try:
+                get_img(images[1])
+            except:
+                a=0
+        with col2:
+            try:
+                get_img(images[2])
+            except:
+                a=0
+        with col3:
+            try:
+                get_img(images[3])
+            except:
+                a=0
+        with col4:
+            try:
+                get_img(images[4])
+            except:
+                a=0
+        with col5:
+            try:
+                get_img(images[5])
+            except:
+                a=0
+
+def get_img(url):
+    response = requests.get(url)
+    img = Image.open(BytesIO(response.content))
+    st.image(img)
 
 def push_results_to_repo():
     
@@ -70,15 +123,16 @@ data = load_data('prompt_benchmark.xlsx')
 # Load the next pair of versions to compare
 if "nb_comparison" not in st.session_state:
     st.session_state["nb_comparison"] = 0
-title, title_idx, v1_idx, v1, v2_idx, v2 = get_random_pair(data, st.session_state["nb_comparison"])
+title_idx, v1_idx, v1, v2_idx, v2, images = get_random_pair(data, st.session_state["nb_comparison"])
 
 # Header
 response = requests.get('https://www.bearingpointcaribbean.com/wp-content/uploads/2021/02/BrP_Logo_RGBW_NG.png')
 img = Image.open(BytesIO(response.content))
 st.image(img, width=200)
 st.title("AILABEL: GPT Title Benchmark")
-st.subheader('Select the best product title between A & B to be used for an e-commerce website.')
-st.write("Original Title: " + title)
+st.subheader('Select the best product title between A & B for an e-commerce website.')
+st.subheader(f'Product Number {title_idx}')
+display_product_images()
 st.markdown("""---""")
 st.write("Version A: " + v1)
 st.markdown("""---""")
@@ -110,7 +164,7 @@ if selected_v1 or selected_v2:
 
     st.session_state["nb_comparison"] += 1
 
-    title, title_idx, v1_idx, v1, v2_idx, v2 = get_random_pair(data, st.session_state["nb_comparison"])
+    title_idx, v1_idx, v1, v2_idx, v2, images = get_random_pair(data, st.session_state["nb_comparison"])
 
     st.experimental_rerun()
 
@@ -127,4 +181,7 @@ if st.button('Push results'):
         push_results_to_repo()
         st.success('Thanks!')
     else:
-        st.write("No comparisons have been made yet.")
+        st.write("Please make at least one comparison before pushing -_-'")
+        bruh = requests.get('http://i.imgur.com/2CkPjd2.png')
+        bruh_img = Image.open(BytesIO(bruh.content))
+        st.image(bruh_img, width=200)
