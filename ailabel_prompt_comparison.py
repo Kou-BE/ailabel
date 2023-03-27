@@ -6,12 +6,13 @@ import requests
 from io import BytesIO
 from datetime import datetime
 
+
 # Get random pair
 @st.cache
 def get_random_pair(data, i):
     title_idx = np.random.choice(data.index.unique())
     title_row = data.iloc[title_idx]
-    images = title_row['image']
+    images = title_row['images']
 
     version_indices = list(range(6))
     np.random.shuffle(version_indices)
@@ -36,9 +37,9 @@ def new_results(title_idx, winner, loser):
 def load_data(filename):
 
     data = pd.read_excel('./input/' + filename, usecols=['title','title_0a','title_0b','title_1a','title_1b','title_2b','image'])
-    data.columns = ['v0', 'v1', 'v2', 'v3', 'v4', 'v5', 'image']
+    data.columns = ['v0', 'v1', 'v2', 'v3', 'v4', 'v5', 'images']
 
-    data['image'] = data['image'].map(lambda x: clean_img_url(x))
+    data['images'] = data['images'].map(lambda x: clean_img_url(x))
     
     return data
 
@@ -48,50 +49,36 @@ def clean_img_url(x_str):
     else:
         x_list = x_str.split(', ')
         x_list = [x.strip("'").strip('[').strip(']').strip("'") for x in x_list]
-        return x_list
+        x_list += [""]*5
+        return x_list[:6]
 
 def display_product_images():
 
     if len(images)==0:
         st.write('No image available')
-    else:
 
+    else:
         col0, col1, col2, col3, col4, col5 = st.columns(6)
         with col0:
-            try:
-                get_img(images[0])
-            except:
-                a=0
+            get_img(images[0])
         with col1:
-            try:
-                get_img(images[1])
-            except:
-                a=0
+            get_img(images[1])
         with col2:
-            try:
-                get_img(images[2])
-            except:
-                a=0
+            get_img(images[2])
         with col3:
-            try:
-                get_img(images[3])
-            except:
-                a=0
+            get_img(images[3])
         with col4:
-            try:
-                get_img(images[4])
-            except:
-                a=0
+            get_img(images[4])
         with col5:
-            try:
-                get_img(images[5])
-            except:
-                a=0
+            get_img(images[5])
 
 def get_img(url):
-    response = requests.get(url)
-    img = Image.open(BytesIO(response.content))
-    st.image(img)
+    if len(url)==0:
+        a = 0
+    else:
+        response = requests.get(url)
+        img = Image.open(BytesIO(response.content))
+        st.image(img)
 
 def push_results_to_repo():
     
