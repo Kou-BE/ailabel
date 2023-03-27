@@ -107,7 +107,7 @@ def push_results_to_repo():
     csv_str = results_df.to_csv(index=False)
     
     # Convert CSV string to bytes
-    csv_bytes = io.BytesIO(csv_str.encode())
+    csv_bytes = BytesIO(csv_str.encode())
     
     # Create filename with datetime and random set of numbers
     now = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
