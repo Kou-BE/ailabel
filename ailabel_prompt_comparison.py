@@ -81,36 +81,49 @@ def get_img(url):
         img = Image.open(BytesIO(response.content))
         st.image(img)
 
-def push_results_to_repo():
+# Define the form fields
+with st.form(key="csv_upload"):
+    submit_button = st.form_submit_button(label="Push results")
+
+# When the user clicks the submit button, push the file to GitHub
+if submit_button:
+    # Get the results dataframe from session state
+    results_df = st.session_state["results"]
+    
+    # Convert the dataframe to CSV string
+    csv_str = results_df.to_csv(index=False)
+    
+    # Convert CSV string to bytes
+    csv_bytes = io.BytesIO(csv_str.encode())
     
     # Create filename with datetime and random set of numbers
     now = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     rand_num = str(np.random.randint(1000, 9999))
     filename = f'{now}_{rand_num}.csv'
-    filepath = './output/' + filename
     
-    # Save results DataFrame to CSV file
-    results = st.session_state["results"]
-    results.to_csv(filepath, index=False)
+    # Push the file to GitHub
+    push_to_github(filename, csv_bytes.getvalue())
     
-    # Read CSV contents from file
-    with open(filepath, 'r') as f:
-        file_list = f.read()
-    
-    # Repo info
-    repo = st.secrets["repository"]
-    branch = st.secrets["branch"]
-    token = st.secrets["token"]
-    
-    # Push
-    updategitfiles(filepath, file_list, repo, branch, token)
+    # Show a success message
+    st.success("File pushed to GitHub successfully.")
 
+    
+def push_to_github(filename, filecontent):
+    
+    # Get the GitHub token from the Streamlit secrets
+    token = st.secrets["github"]["token"]
+    _repo = st.secrets["github"]["repo"]
+    _branch = st.secrets["github"]["branch"]
 
-def updategitfiles(filepath,file_list,repo,branch,token):
-
+    # Create a PyGitHub object with the token
     g = Github(token)
-    repo = g.get_user().get_repo(repo)
-    repo.create_file(filepath, "committing files", file_list, branch=branch)
+
+    # Get the repository object
+    repo = g.get_repo(_repo+"/"+_branch)
+
+    # Create a new Git commit with the file
+    repo.create_file(filename, "Add new file", filecontent)
+    
     time.sleep(3)
 
 ################################################################################################################################
@@ -170,7 +183,6 @@ if selected_v1 or selected_v2:
 
 # Show the results of all comparisons so far
 if len(st.session_state["results"]) > 0:
-    st.dataframe(pd.concat(st.session_state["results"], ignore_index=True))
     st.write("No comparisons made: " + str(st.session_state["nb_comparison"]))
 else:
     st.write("No comparisons have been made yet.")
