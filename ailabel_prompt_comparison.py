@@ -41,6 +41,10 @@ def load_data(filename):
 
     data['images'] = data['images'].map(lambda x: clean_img_url(x))
     
+    st.write(st.secrets["repository"])
+    st.write(st.secrets["branch"])
+    st.write(st.secrets["token"])
+    
     return data
 
 def clean_img_url(x_str):
