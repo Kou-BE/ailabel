@@ -11,7 +11,7 @@ import time
 
 # Get random pair
 @st.cache
-def get_random_pair(data, i):
+def get_random_pair(data, i, session_nb):
     title_idx = np.random.randint(0,99)
     title_row = data.iloc[title_idx]
     images = title_row['images']
@@ -95,7 +95,7 @@ def push_to_github(filename, filecontent):
     time.sleep(3)
 
 
-def push_results_to_repo():    
+def push_results_to_repo():
     # Get the results dataframe from session state
     results_df = pd.DataFrame(st.session_state['results'], columns=['title_idx', 'winner', 'loser'])
     
@@ -137,7 +137,9 @@ data = load_data('prompt_benchmark.xlsx')
 # Load the next pair of versions to compare
 if "nb_comparison" not in st.session_state:
     st.session_state["nb_comparison"] = 0
-title_idx, v1_idx, v1, v2_idx, v2, images = get_random_pair(data, st.session_state['nb_comparison'])
+if "session_nb" not in st.session_state:
+    st.session_state["session_nb"] = np.random.rand()
+title_idx, v1_idx, v1, v2_idx, v2, images = get_random_pair(data, st.session_state['nb_comparison'],st.session_state["session_nb"])
 
 
 # Header
@@ -177,7 +179,7 @@ if selected_v1 or selected_v2:
 
     st.session_state["nb_comparison"] += 1
 
-    title_idx, v1_idx, v1, v2_idx, v2, images = get_random_pair(data, st.session_state['nb_comparison'])
+    title_idx, v1_idx, v1, v2_idx, v2, images = get_random_pair(data, st.session_state['nb_comparison'],st.session_state["session_nb"])
 
     st.experimental_rerun()
 
