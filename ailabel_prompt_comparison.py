@@ -6,6 +6,7 @@ import requests
 from io import BytesIO
 from datetime import datetime
 from github import Github
+import time
 
 
 # Get random pair
