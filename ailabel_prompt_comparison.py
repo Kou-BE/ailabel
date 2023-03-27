@@ -101,7 +101,7 @@ def push_to_github(filename, filecontent):
 
 def push_results_to_repo():    
     # Get the results dataframe from session state
-    results_df = st.session_state["results"]
+    results_df = pd.DataFrame(st.session_state["results"])
     
     # Convert the dataframe to CSV string
     csv_str = results_df.to_csv(index=False)
