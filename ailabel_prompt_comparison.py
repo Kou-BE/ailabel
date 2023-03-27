@@ -85,7 +85,7 @@ def push_to_github(filename, filecontent):
     
     # Get the GitHub token from the Streamlit secrets
     token = st.secrets["github"]["token"]
-    _repo = st.secrets["github"]["repo"]
+    _repo = st.secrets["github"]["repository"]
     _branch = st.secrets["github"]["branch"]
 
     # Create a PyGitHub object with the token
