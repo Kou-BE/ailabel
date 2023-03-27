@@ -117,7 +117,6 @@ def push_results_to_repo():
     st.success("Results pushed successfully!")     
 
 
-@st.cache(suppress_st_warning=True)
 def display_main_header():
     response = requests.get('https://www.bearingpointcaribbean.com/wp-content/uploads/2021/02/BrP_Logo_RGBW_NG.png')
     img = Image.open(BytesIO(response.content))
