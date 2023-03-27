@@ -105,10 +105,10 @@ def push_results_to_repo():
     updategitfiles(filepath, file_list, repo, branch, token)
 
 
-def updategitfiles(filepath,file_list,Repo,branch,token):
+def updategitfiles(filepath,file_list,repo,branch,token):
 
     g = Github(token)
-    repo = g.get_user().get_repo(Repo)
+    repo = g.get_user().get_repo(repo)
     repo.create_file(filepath, "committing files", file_list, branch=branch)
     time.sleep(3)
 
