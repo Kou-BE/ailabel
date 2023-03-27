@@ -90,15 +90,23 @@ def push_results_to_repo():
     
     # Save results DataFrame to CSV file
     results = st.session_state["results"]
-    results.to_csv(filepath, index=False)
+    results_git = results.to_csv(filepath, index=False)
     
-    ## Stage and commit changes to the repository
-    #repo.index.add([filepath])
-    #repo.index.commit(f'Add results file {filename}')
-    #
-    ## Push changes to the remote repository
-    #repo.remotes.origin.push()
+    # Repo info
+    repo = st.secrets["repository"]
+    branch = st.secrets["branch"]
+    token = st.secrets["token"]
+    
+    # Push
+    updategitfiles(filepath,results_git,repo,branch,token)
 
+
+def updategitfiles(filepath,file_list,Repo,branch,token):
+
+    g = Github(token)
+    repo = g.get_user().get_repo(Repo)
+    repo.create_file(filepath, "committing files", file_list, branch=branch)
+    time.sleep(3)
 
 ################################################################################################################################
 # STREAMLIT
