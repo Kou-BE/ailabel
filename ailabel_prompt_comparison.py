@@ -211,6 +211,7 @@ if st.button('Push results'):
         st.image(bruh_img, width=200)
 
 # Stats
+st.markdown("""---""")
 with st.expander("Ongoing progress"):    
     if st.button('Print stats'):
         csv_count, total_rows = get_results_stats()
