@@ -53,7 +53,7 @@ def clean_img_url(x_str):
         return x_list[:6]
 
 
-def display_product_images():
+def display_product_images(images):
     if len(images)==0:
         st.write('No image available')
     else:
@@ -62,18 +62,9 @@ def display_product_images():
             try:
                 response = requests.get(img_url)
                 img = Image.open(BytesIO(response.content))
-                col.image(img)
+                col.image(img, width=100)
             except:
                 pass
-
-
-def get_img(url):
-    try:
-        response = requests.get(url)
-        img = Image.open(BytesIO(response.content))
-        st.image(img)
-    except:
-        pass
 
 
 def push_to_github(filename, filecontent):
@@ -144,7 +135,7 @@ title_idx, v1_idx, v1, v2_idx, v2, images = get_random_pair(data, st.session_sta
 # Header
 display_main_header()
 st.subheader(f'Product Number {title_idx}')
-display_product_images()
+display_product_images(images)
 st.markdown("""---""")
 st.write("Version A: " + v1)
 st.markdown("""---""")
@@ -158,7 +149,6 @@ with col1:
     selected_v1 = st.button(f"Select Version A")
 with col2:
     selected_v2 = st.button(f"Select Version B")
-
 
 # Comparison save
 if "results" not in st.session_state:    
