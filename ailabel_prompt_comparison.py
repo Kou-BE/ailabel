@@ -214,4 +214,4 @@ if st.button('Push results'):
 with st.expander("Ongoing progress"):    
     if st.button('Print stats'):
         csv_count, total_rows = get_results_stats()
-        st.write(f'Nb de session de comparaisons : {csv_count}. Nb de comparaisons : {total_rows}')
+        st.write(f'Nb de sessions de comparaison : {csv_count}. Nb de comparaisons : {total_rows}')
