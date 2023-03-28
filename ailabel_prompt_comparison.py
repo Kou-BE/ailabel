@@ -7,6 +7,7 @@ from io import BytesIO
 from datetime import datetime
 from github import Github
 import time
+import os
 
 
 # Get random pair
@@ -115,6 +116,23 @@ def display_main_header():
     st.title("AILABEL: GPT Title Benchmark")
     st.subheader('Select the best product title between A & B for an e-commerce website.')
 
+    
+def get_results_stats():
+    # Chemin vers le dossier "output"
+    folder_path = './output/'
+
+    # Compter le nombre de fichiers CSV dans le dossier
+    csv_count = len(os.listdir(folder_path))
+
+    # Compter le nombre total de lignes dans tous les fichiers CSV
+    total_rows = 0
+    for file in os.listdir(folder_path):
+        df = pd.read_csv(os.path.join(folder_path, file))
+        total_rows += len(df)
+
+    return csv_count, total_rows
+
+
 ################################################################################################################################
 # STREAMLIT
 ################################################################################################################################
@@ -191,3 +209,9 @@ if st.button('Push results'):
         bruh = requests.get('http://i.imgur.com/2CkPjd2.png')
         bruh_img = Image.open(BytesIO(bruh.content))
         st.image(bruh_img, width=200)
+
+# Stats
+with st.expander("Ongoing progress"):    
+    if st.button('Print stats'):
+        csv_count, total_rows = get_results_stats()
+        st.write(f'Nb de session de comparaisons : {csv_count}. Nb de comparaisons : {total_rows}')
