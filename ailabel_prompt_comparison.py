@@ -193,7 +193,7 @@ if selected_v1 or selected_v2:
 
 # Show the results of all comparisons so far
 if len(st.session_state["results"]) > 0:
-    st.write("No comparisons not pushed yet: " + str(len(st.session_state['results'])))
+    st.write("Nb comparisons not pushed yet: " + str(len(st.session_state['results'])))
     #st.dataframe(pd.DataFrame(st.session_state['results'], columns=['title_idx', 'winner', 'loser']))
 else:
     st.write("No comparisons have been made yet.")
