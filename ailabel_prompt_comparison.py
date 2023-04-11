@@ -132,6 +132,26 @@ def get_results_stats():
 
     return csv_count, total_rows
 
+def get_winshare_ranking():
+    # Chemin vers le dossier "output"
+    folder_path = './output/'
+    
+    # Tout charger
+    files = []
+    for file in os.listdir(folder_path):
+        df = pd.read_csv(os.path.join(folder_path, file))
+        files.append(df)
+    df = pd.concat(files)
+    
+    product_checked = pd.DataFrame(df['title_idx'].value_counts()).reset_index(drop=False).rename(columns={'index':'title_idx','title_idx':'nb_times_tested'})
+    
+    nb_wins = df.groupby('winner').agg({'winner':np.size}).rename(columns={'winner':'nb_wins'}).reset_index(drop=False)
+    nb_losses = df.groupby('loser').agg({'loser':np.size}).rename(columns={'loser':'nb_losses'}).reset_index(drop=False)
+    winshare = nb_wins.merge(nb_losses, left_index=True, right_index=True)
+    winshare['winshare'] = winshare['nb_wins']/winshare.sum(axis=1)
+
+    st.dataframe(product_checked)
+    st.dataframe(winshare)
 
 ################################################################################################################################
 # STREAMLIT
@@ -216,3 +236,6 @@ with st.expander("Ongoing progress"):
     if st.button('Print stats'):
         csv_count, total_rows = get_results_stats()
         st.write(f'Nb de pushs : {csv_count}. Nb de comparaisons : {total_rows}')
+    if st.button('Print winshare ranking - winshare'):
+        get_winshare_ranking()
+    #if st.button('Print elo ranking'):
