@@ -156,7 +156,7 @@ def get_winshare_ranking():
     st.dataframe(winshare)
     
     df_plot = winshare.sort_values('winshare', ascending=True)
-    fig = px.bar(df_plot, x="winshare", y="Title Version", orientation='h')
+    fig = px.bar(df_plot, x="winshare", y="winner", orientation='h')
     st.plotly_chart(fig, use_container_width=True)
 
 ################################################################################################################################
