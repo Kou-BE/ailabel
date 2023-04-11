@@ -8,6 +8,7 @@ from datetime import datetime
 from github import Github
 import time
 import os
+import plotly.express as px
 
 
 # Get random pair
@@ -148,10 +149,15 @@ def get_winshare_ranking():
     nb_wins = df.groupby('winner').agg({'winner':np.size}).rename(columns={'winner':'nb_wins'}).reset_index(drop=False)
     nb_losses = df.groupby('loser').agg({'loser':np.size}).rename(columns={'loser':'nb_losses'}).reset_index(drop=False)
     winshare = nb_wins.merge(nb_losses, left_index=True, right_index=True)
-    winshare['winshare'] = winshare['nb_wins']/winshare.sum(axis=1)
+    winshare['winshare'] = ['nb_wins']/winshare.sum(axis=1)
+    
 
     st.dataframe(product_checked)
     st.dataframe(winshare)
+    
+    df_plot = winshare.sort_values('winshare', ascending=True)
+    fig = px.bar(df_plot, x="winshare", y="Title Version", orientation='h')
+    st.plotly_chart(fig, use_container_width=True)
 
 ################################################################################################################################
 # STREAMLIT
