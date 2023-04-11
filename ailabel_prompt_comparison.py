@@ -149,7 +149,7 @@ def get_winshare_ranking():
     nb_wins = df.groupby('winner').agg({'winner':np.size}).rename(columns={'winner':'nb_wins'}).reset_index(drop=False)
     nb_losses = df.groupby('loser').agg({'loser':np.size}).rename(columns={'loser':'nb_losses'}).reset_index(drop=False)
     winshare = nb_wins.merge(nb_losses, left_index=True, right_index=True)
-    winshare['winshare'] = ['nb_wins']/winshare.sum(axis=1)
+    winshare['winshare'] = winshare['nb_wins']/winshare.sum(axis=1)
     
 
     st.dataframe(product_checked)
@@ -242,6 +242,6 @@ with st.expander("Ongoing progress"):
     if st.button('Print stats'):
         csv_count, total_rows = get_results_stats()
         st.write(f'Nb de pushs : {csv_count}. Nb de comparaisons : {total_rows}')
-    if st.button('Print winshare ranking - winshare'):
+    if st.button('Print winshare ranking'):
         get_winshare_ranking()
     #if st.button('Print elo ranking'):
